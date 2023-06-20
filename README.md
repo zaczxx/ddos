@@ -20,7 +20,9 @@ pip install pyautogui
  
  git clone https://github.com/](https://github.com/zaczxx/ddos
   
- pip3 install -r requirements.txt  OR  pip install -r requirements.txt
+ cd ddos
  
+ pip install -r requirements.txt
  
+ python new.py
 
