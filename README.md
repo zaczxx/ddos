@@ -18,11 +18,11 @@ pkg install git
 
 pip install pyautogui
  
- git clone https://github.com/](https://github.com/zaczxx/ddos
+ git clone https://github.com/zaczxx/ddos
   
  cd ddos
  
  pip install -r requirements.txt
  
- python new.py
+ python ddosz.py
 
